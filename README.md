@@ -24,7 +24,7 @@ This module supports the following Kubernetes distros
 
 ```hcl-terraform
 module "dev_tools_dashboard" {
-  source = "github.com/ibm-garage-cloud/teraform-tools-dashboard?ref=v1.0.0"
+  source = "github.com/ibm-garage-cloud/teraform-tools-dashboard?ref=v1.1.0"
 
   cluster_ingress_hostname = module.dev_cluster.ingress_hostname
   cluster_config_file      = module.dev_cluster.config_file_path
