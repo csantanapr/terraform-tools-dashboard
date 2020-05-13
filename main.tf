@@ -20,6 +20,7 @@ resource "helm_release" "developer-dashboard" {
   version      = var.chart_version
   namespace    = var.releases_namespace
   force_update = true
+  replace      = true
 
   set {
     name  = "clusterType"
@@ -50,6 +51,7 @@ resource "helm_release" "dashboard-config" {
   chart        = "tool-config"
   namespace    = var.releases_namespace
   force_update = true
+  replace      = true
 
   set {
     name  = "url"
