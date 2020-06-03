@@ -43,8 +43,20 @@ resource "helm_release" "developer-dashboard" {
   }
 }
 
+resource "null_resource" "delete-consolelink" {
+  count = var.cluster_type != "kubernetes" ? 1 : 0
+
+  provisioner "local-exec" {
+    command = "kubectl delete consolelink -l grouping=garage-cloud-native-toolkit -l app=dashboard || exit 0"
+
+    environment = {
+      KUBECONFIG = var.cluster_config_file
+    }
+  }
+}
+
 resource "helm_release" "dashboard-config" {
-  depends_on = [helm_release.developer-dashboard]
+  depends_on = [helm_release.developer-dashboard, null_resource.delete-consolelink]
 
   name         = "dashboard"
   repository   = "https://ibm-garage-cloud.github.io/toolkit-charts/"
@@ -56,5 +68,20 @@ resource "helm_release" "dashboard-config" {
   set {
     name  = "url"
     value = local.endpoint_url
+  }
+
+  set {
+    name  = "applicationMenu"
+    value = var.cluster_type != "kubernetes"
+  }
+
+  set {
+    name  = "ingressSubdomain"
+    value = var.cluster_ingress_hostname
+  }
+
+  set {
+    name  = "displayName"
+    value = "Developer Dashboard"
   }
 }
