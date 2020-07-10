@@ -10,6 +10,7 @@ locals {
   tmp_dir      = "${path.cwd}/.tmp"
   cluster_type = var.cluster_type == "kubernetes" ? "kubernetes" : "openshift"
   ingress_host = "dashboard-${var.releases_namespace}.${var.cluster_ingress_hostname}"
+  icon_host    = "dashboard-icons.${var.cluster_ingress_hostname}"
   endpoint_url = "http${var.tls_secret_name != "" ? "s" : ""}://${local.ingress_host}"
   gitops_dir   = var.gitops_dir != "" ? var.gitops_dir : "${path.cwd}/gitops"
   chart_name   = "dashboard"
@@ -23,6 +24,7 @@ locals {
       enabled = var.enable_sso
     }
     tlsSecretName = var.tls_secret_name
+    iconHost = local.icon_host
   }
   tool_config = {
     url = local.endpoint_url
@@ -68,6 +70,7 @@ resource "null_resource" "print-values" {
 
 resource "helm_release" "developer-dashboard" {
   depends_on = [local_file.dashboard-values]
+  count = var.mode != "setup" ? 1 : 0
 
   name         = "developer-dashboard"
   chart        = local.chart_dir
