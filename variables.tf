@@ -33,7 +33,7 @@ variable "tls_secret_name" {
 variable "image_tag" {
   type        = string
   description = "The image version tag to use"
-  default     = "1.0.31"
+  default     = "1.1.0"
 }
 
 variable "chart_version" {
@@ -46,4 +46,16 @@ variable "enable_sso" {
   type        = bool
   description = "Flag indicating that ssl should be enabled (OpenShift only)"
   default     = true
+}
+
+variable "gitops_dir" {
+  type        = string
+  description = "Directory where the gitops repo content should be written"
+  default     = ""
+}
+
+variable "mode" {
+  type        = string
+  description = "The mode of operation for the module (setup)"
+  default     = ""
 }

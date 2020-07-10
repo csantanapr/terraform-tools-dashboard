@@ -11,35 +11,29 @@ locals {
   cluster_type = var.cluster_type == "kubernetes" ? "kubernetes" : "openshift"
   ingress_host = "dashboard-${var.releases_namespace}.${var.cluster_ingress_hostname}"
   endpoint_url = "http${var.tls_secret_name != "" ? "s" : ""}://${local.ingress_host}"
+  gitops_dir   = var.gitops_dir != "" ? var.gitops_dir : "${path.cwd}/gitops"
+  chart_name   = "dashboard"
+  chart_dir    = "${local.gitops_dir}/${local.chart_name}"
+  global = {
+    ingressSubdomain = var.cluster_ingress_hostname
+    clusterType = var.cluster_type
+  }
+  dashboard_config = {
+    sso = {
+      enabled = var.enable_sso
+    }
+    tlsSecretName = var.tls_secret_name
+  }
+  tool_config = {
+    url = local.endpoint_url
+    applicationMenu = true
+    displayName = "Developer Dashboard"
+  }
 }
 
-resource "helm_release" "developer-dashboard" {
-  name         = "developer-dashboard"
-  repository   = "https://ibm-garage-cloud.github.io/toolkit-charts/"
-  chart        = "developer-dashboard"
-  version      = var.chart_version
-  namespace    = var.releases_namespace
-  force_update = true
-  replace      = true
-
-  set {
-    name  = "clusterType"
-    value = local.cluster_type
-  }
-
-  set {
-    name  = "ingressSubdomain"
-    value = var.cluster_ingress_hostname
-  }
-
-  set {
-    name  = "sso.enabled"
-    value = var.enable_sso
-  }
-
-  set {
-    name  = "tlsSecretName"
-    value = var.tls_secret_name
+resource "null_resource" "setup-chart" {
+  provisioner "local-exec" {
+    command = "mkdir -p ${local.chart_dir} && cp -R ${path.module}/chart/${local.chart_name}/* ${local.chart_dir}"
   }
 }
 
@@ -55,33 +49,29 @@ resource "null_resource" "delete-consolelink" {
   }
 }
 
-resource "helm_release" "dashboard-config" {
-  depends_on = [helm_release.developer-dashboard, null_resource.delete-consolelink]
+resource "local_file" "dashboard-values" {
+  depends_on = [null_resource.setup-chart, null_resource.delete-consolelink]
 
-  name         = "dashboard"
-  repository   = "https://ibm-garage-cloud.github.io/toolkit-charts/"
-  chart        = "tool-config"
+  content  = yamlencode({
+    global = local.global
+    developer-dashboard = local.dashboard_config
+    tool-config = local.tool_config
+  })
+  filename = "${local.chart_dir}/values.yaml"
+}
+
+resource "null_resource" "print-values" {
+  provisioner "local-exec" {
+    command = "cat ${local_file.dashboard-values.filename}"
+  }
+}
+
+resource "helm_release" "developer-dashboard" {
+  depends_on = [local_file.dashboard-values]
+
+  name         = "developer-dashboard"
+  chart        = local.chart_dir
   namespace    = var.releases_namespace
   force_update = true
   replace      = true
-
-  set {
-    name  = "url"
-    value = local.endpoint_url
-  }
-
-  set {
-    name  = "applicationMenu"
-    value = var.cluster_type == "ocp4"
-  }
-
-  set {
-    name  = "ingressSubdomain"
-    value = var.cluster_ingress_hostname
-  }
-
-  set {
-    name  = "displayName"
-    value = "Developer Dashboard"
-  }
 }
