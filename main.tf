@@ -27,6 +27,7 @@ locals {
     iconHost = local.icon_host
   }
   tool_config = {
+    name = "dashboard"
     url = local.endpoint_url
     applicationMenu = true
     displayName = "Developer Dashboard"
