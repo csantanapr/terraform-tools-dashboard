@@ -69,11 +69,11 @@ resource "null_resource" "print-values" {
   }
 }
 
-resource "helm_release" "developer-dashboard" {
+resource "helm_release" "dashboard" {
   depends_on = [local_file.dashboard-values]
   count = var.mode != "setup" ? 1 : 0
 
-  name         = "developer-dashboard"
+  name         = "dashboard"
   chart        = local.chart_dir
   namespace    = var.releases_namespace
   force_update = true
