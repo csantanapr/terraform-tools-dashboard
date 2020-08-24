@@ -8,9 +8,8 @@ Installs the Cloud-Native Toolkit Developer Dashboard into the cluster.
 
 This module supports the following Kubernetes distros
 
-- Kubernetes
-- OCP 3.11
-- OCP 4.3
+- Kubernetes 1.17+
+- OCP 4.3+
 
 ## Module dependencies
 
