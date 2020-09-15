@@ -23,6 +23,9 @@ locals {
     sso = {
       enabled = var.enable_sso
     }
+    image = {
+      tag = var.image_tag
+    }
     tlsSecretName = var.tls_secret_name
     iconHost = local.icon_host
   }
