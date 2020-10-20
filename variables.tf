@@ -59,3 +59,9 @@ variable "mode" {
   description = "The mode of operation for the module (setup)"
   default     = ""
 }
+
+variable "timeout" {
+  type        = string
+  description = "The amount of time to wait for the deployment"
+  default     = "600"
+}

@@ -81,4 +81,5 @@ resource "helm_release" "dashboard" {
   namespace    = var.releases_namespace
   force_update = true
   replace      = true
+  timeout      = var.timeout
 }
