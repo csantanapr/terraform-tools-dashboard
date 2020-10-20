@@ -63,5 +63,5 @@ variable "mode" {
 variable "timeout" {
   type        = string
   description = "The amount of time to wait for the deployment"
-  default     = "600"
+  default     = "1200"
 }
