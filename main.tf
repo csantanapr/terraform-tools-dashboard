@@ -24,6 +24,7 @@ locals {
       enabled = var.enable_sso
     }
     image = {
+      repository = "quay.io/ibmgaragecloud/developer-dashboard"
       tag = var.image_tag
     }
     tlsSecretName = var.tls_secret_name
