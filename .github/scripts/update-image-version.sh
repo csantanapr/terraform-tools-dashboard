@@ -10,7 +10,7 @@ fi
 
 set -e
 
-LATEST_TAG=$(curl -s "https://registry.hub.docker.com/v1/repositories/${REPO_SLUG}/tags" | jq -r '[sort_by(.name) | reverse | .[] | select(.name != "latest" and .name != "dev") | .name] | .[0]' | sort -Vr | head -1)
+LATEST_TAG=$(curl https://quay.io/api/v1/repository/${REPO_SLUG}/tag/ -s | jq -r '.tags | .[] | select(.name != "latest" and .name != "dev" and .name != "main" and .name != "master") | .name' | sort -Vr | head -1)
 echo "Latest tag: ${LATEST_TAG}"
 
 CURRENT_TAG=$(cat "${REPO_DIR}/variables.tf" | grep "image_tag" -A 4 | grep default | sed -E "s/ +default += \"(.*)\"/\1/")
